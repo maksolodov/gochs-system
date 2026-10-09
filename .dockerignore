@@ -1,0 +1,15 @@
+**/bin
+**/obj
+data
+test-results
+node_modules
+.runtime
+.git
+.env
+.env.*
+secrets
+*.key
+*.pfx
+tests
+demo
+*.zip

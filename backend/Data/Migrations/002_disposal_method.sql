@@ -1,0 +1,1 @@
+ALTER TABLE "Disposals" ADD COLUMN "Method" TEXT NOT NULL DEFAULT '';

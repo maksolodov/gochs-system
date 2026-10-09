@@ -1,0 +1,54 @@
+services:
+  gochs:
+    build: .
+    environment:
+      ServerMode: "true"
+      AllowedHosts: "${DOMAIN:?Set DOMAIN}"
+      TrustedProxy: "${PROXY_IP:?Set PROXY_IP}"
+      OperatorPasswordFile: /run/secrets/operator_password
+      SwaggerEnabled: "false"
+      SessionMinutes: "${SESSION_MINUTES:-120}"
+    secrets:
+      - operator_password
+    volumes:
+      - gochs-data:/app/data
+      - gochs-backups:/app/backups
+    networks:
+      - application
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+  proxy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: "${DOMAIN:?Set DOMAIN}"
+      ACME_EMAIL: "${ACME_EMAIL:?Set ACME_EMAIL}"
+    ports:
+      - "${BIND_ADDRESS:?Set BIND_ADDRESS}:${HTTP_PORT:-80}:80"
+      - "${BIND_ADDRESS:?Set BIND_ADDRESS}:${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      application:
+        ipv4_address: "${PROXY_IP:?Set PROXY_IP}"
+      edge: {}
+    restart: unless-stopped
+secrets:
+  operator_password:
+    file: "${OPERATOR_PASSWORD_FILE:?Set OPERATOR_PASSWORD_FILE}"
+volumes:
+  gochs-data:
+  gochs-backups:
+  caddy-data:
+  caddy-config:
+networks:
+  application:
+    internal: true
+    ipam:
+      config:
+        - subnet: "${PROXY_SUBNET:?Set PROXY_SUBNET}"
+  edge: {}

@@ -1,0 +1,6 @@
+{
+  "name": "gochs-ui-checks",
+  "private": true,
+  "scripts": {"test:ui": "node tests/ui.cjs"},
+  "devDependencies": {"playwright": "1.58.2"}
+}
