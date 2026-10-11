@@ -11,6 +11,7 @@ public interface IWartimeOrderService
     Task<WartimeTransitionOrder?> UpdateOrderAsync(int id, WartimeOrderUpsertDto dto);
     Task<WartimeTransitionOrder?> SignOrderAsync(int id, SignWartimeOrderDto dto);
     Task<WartimeTransitionOrder?> ActivateOrderAsync(int id);
+    Task<WartimeReturnResult> ReturnToNormalAsync();
     Task<WartimeOrderStateDto> GetStateAsync();
     Task<List<WartimeActionLog>> GetAuditAsync(int orderId);
     Task<string?> GetDocumentHtmlAsync(int id);

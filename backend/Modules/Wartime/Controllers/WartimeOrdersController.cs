@@ -105,4 +105,17 @@ public class WartimeOrdersController : ControllerBase
     {
         return Ok(await _service.GetStateAsync());
     }
+
+    [HttpPost("state/normal")]
+    public async Task<ActionResult<Gochs.Modules.Wartime.WartimeReturnResult>> ReturnToNormal()
+    {
+        try
+        {
+            return Ok(await _service.ReturnToNormalAsync());
+        }
+        catch(InvalidOperationException ex)
+        {
+            return Conflict(new{message=ex.Message});
+        }
+    }
 }

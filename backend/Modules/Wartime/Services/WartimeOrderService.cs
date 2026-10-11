@@ -162,6 +162,29 @@ public class WartimeOrderService : IWartimeOrderService
         return order;
     }
 
+    public async Task<Gochs.Modules.Wartime.WartimeReturnResult> ReturnToNormalAsync()
+    {
+        var state=await GetOrCreateStateEntityAsync();
+        if(state.Mode!=OperationalMode.Wartime)
+            throw new InvalidOperationException("Обычный режим уже установлен.");
+
+        var activeOrderId=state.ActiveOrderId;
+        var result=await Gochs.Modules.Wartime.ModeActions.ReturnToNormal(_db,activeOrderId);
+        state.Mode=OperationalMode.Normal;
+        state.ActiveOrderId=null;
+        state.ActivatedAt=null;
+        state.SpecialWorkScheduleEnabled=false;
+        state.LeaveRestrictionsEnabled=false;
+        state.EmergencyNotificationsEnabled=false;
+        state.ProtectedFormsEnabled=false;
+        state.UpdatedAt=DateTime.UtcNow;
+        if(activeOrderId.HasValue)
+            await AddActionAsync(activeOrderId.Value,"NormalModeRestored",result.Message);
+        Rules.Audit(_db,"Возврат в обычный режим",new{ActiveOrderId=activeOrderId,result.RestoredLeaves,result.RestoredEmployees,result.PreservedLeaves,result.PreservedEmployees});
+        await _db.SaveChangesAsync();
+        return result;
+    }
+
     public async Task<WartimeOrderStateDto> GetStateAsync()
     {
         var state = await GetOrCreateStateEntityAsync();
